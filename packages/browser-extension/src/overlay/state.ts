@@ -10,6 +10,14 @@ export type SelectedComponent = {
   selector: string;
   domPath: string;
   parentSignature?: string;
+  ancestorTrail: string[];
+  semanticPath?: string;
+  closestHeading?: string;
+  landmarkHint?: string;
+  siblingIndex: number;
+  siblingCount: number;
+  childCount: number;
+  testAttributes: string[];
   role?: string;
   ariaLabel?: string;
   rect: Rect;

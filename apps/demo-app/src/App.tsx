@@ -1,147 +1,139 @@
 type DemoLocale = "zh-CN" | "en-US";
 
-const messages = {
+type DemoCard = {
+  eyebrow: string;
+  title: string;
+  description: string;
+  action: string;
+};
+
+type DemoCopy = {
+  badge: string;
+  title: string;
+  subtitle: string;
+  note: string;
+  steps: string[];
+  proof: {
+    eyebrow: string;
+    title: string;
+    checklist: string[];
+  };
+  cardsSectionTitle: string;
+  cardsSectionCopy: string;
+  cards: {
+    position: DemoCard;
+    size: DemoCard;
+    describe: DemoCard;
+  };
+  workspace: {
+    title: string;
+    copy: string;
+    structureTitle: string;
+    structureItems: string[];
+    previewTitle: string;
+    previewItems: string[];
+    footer: string;
+  };
+};
+
+const messages: Record<DemoLocale, DemoCopy> = {
   "zh-CN": {
-    title: "运营控制台",
-    eyebrow: "本地演示页面",
-    nav: {
-      overview: "概览",
-      workspace: "工作区",
-      activity: "动态"
+    badge: "AI UI Runtime 本地演示页",
+    title: "在真实页面里调 UI，再把上下文复制给 AI",
+    subtitle:
+      "这个 demo 故意保持简单。你可以直接选中容器、卡片、标题区或按钮区，快速演示“位置调整、尺寸调整、文字描述”三条主路径。",
+    note: "推荐录屏路径：启用调试 -> 选中下面任意模块 -> 做调整 -> 复制给 AI。",
+    steps: ["启用当前页调试", "直接选中目标", "调整位置或尺寸", "补充文字要求", "复制给 AI"],
+    proof: {
+      eyebrow: "为什么这个页面适合录屏",
+      title: "每个区域都对应一个真实产品动作",
+      checklist: [
+        "容器、标题、按钮、列表都在同一页，方便切换目标。",
+        "每个关键模块都带有 id / data-testid / aria-label，利于 AI 定位源码。",
+        "页面本身不再自带右上角工具样式，不会和扩展 overlay 混淆。"
+      ]
     },
-    workspace: "团队空间",
-    views: {
-      home: "总览面板",
-      delivery: "交付进度",
-      reports: "经营报表"
+    cardsSectionTitle: "推荐演示目标",
+    cardsSectionCopy: "优先录这三个卡片，最容易说明项目价值。",
+    cards: {
+      position: {
+        eyebrow: "位置",
+        title: "拖动这个模块做布局调整",
+        description: "适合演示单个卡片移动，或者 Ctrl / Cmd 多选后整体移动。",
+        action: "演示位置调整"
+      },
+      size: {
+        eyebrow: "尺寸",
+        title: "缩放这个信息面板",
+        description: "适合演示容器宽高变化，不需要修改真实源代码也能看到反馈。",
+        action: "演示尺寸调整"
+      },
+      describe: {
+        eyebrow: "描述",
+        title: "给这个内容区写修改要求",
+        description: "适合演示不做拖拽，只写 prompt 也能生成更准确的 AI 上下文。",
+        action: "演示文字调整"
+      }
     },
-    statsTitle: "关键指标",
-    quickStats: [
-      { label: "活跃项目", value: "18", meta: "本周新增 3 个" },
-      { label: "待处理事项", value: "42", meta: "8 个高优先级" },
-      { label: "发布成功率", value: "99.1%", meta: "过去 30 天" }
-    ],
-    heroEyebrow: "业务总览",
-    heroTitle: "这是一个普通的可测试业务界面",
-    heroCopy:
-      "它提供导航、侧栏、卡片、按钮、列表和双栏布局，方便你用扩展在任意真实页面上验证 hover、select、move、resize 与 intent 输出。",
-    primaryAction: "创建任务",
-    secondaryAction: "导出报表",
-    cards: [
-      {
-        title: "订单概览",
-        description: "展示本周成交、退款和待发货数据，适合测试卡片、标题、数值块和按钮区域。",
-        tag: "数据卡"
-      },
-      {
-        title: "交付看板",
-        description: "展示任务状态和进度，适合测试列表项、标签和多层嵌套容器。",
-        tag: "列表区"
-      },
-      {
-        title: "告警中心",
-        description: "展示异常提醒、操作按钮和说明文案，适合测试右侧信息区域。",
-        tag: "侧面板"
-      }
-    ],
-    viewLabel: "查看",
-    pipelineEyebrow: "交付节奏",
-    pipelineTitle: "本周推进计划",
-    exportPlan: "导出计划",
-    timeline: [
-      {
-        title: "需求确认",
-        description: "整理设计变更、验收标准和风险点，确保开发排期可执行。"
-      },
-      {
-        title: "界面联调",
-        description: "同步页面状态、接口占位和布局细节，减少提测前返工。"
-      },
-      {
-        title: "上线检查",
-        description: "确认监控、回滚策略和关键路径，保证发布窗口稳定。"
-      }
-    ],
-    activityEyebrow: "最近动态",
-    activityTitle: "团队日志",
-    refresh: "刷新",
-    activityFeed: [
-      "华东区域周报已同步到共享盘",
-      "设计评审在今天 15:00 完成",
-      "结算中心新接口进入灰度验证"
-    ]
+    workspace: {
+      title: "一个更像真实业务页的工作区",
+      copy: "下面保留了常见的左侧配置区和右侧内容区，便于你录屏时展示层级定位能力。",
+      structureTitle: "左侧配置区",
+      structureItems: ["品牌区", "状态筛选", "动作按钮", "规则列表"],
+      previewTitle: "右侧内容区",
+      previewItems: ["标题栏", "摘要卡片", "内容栅格", "说明文案"],
+      footer: "你也可以故意选中文本节点，看看扩展如何补更多父级容器线索。"
+    }
   },
   "en-US": {
-    title: "Operations Console",
-    eyebrow: "Local Demo Page",
-    nav: {
-      overview: "Overview",
-      workspace: "Workspace",
-      activity: "Activity"
+    badge: "AI UI Runtime Demo",
+    title: "Adjust real UI, then copy better context for AI",
+    subtitle:
+      "This demo is intentionally simple. You can directly target containers, cards, title blocks, and button groups to show the three main paths: position, size, and describe.",
+    note: "Recommended recording flow: enable debug -> select a target -> adjust it -> copy for AI.",
+    steps: ["Enable debug", "Select a target", "Adjust position or size", "Add a written request", "Copy for AI"],
+    proof: {
+      eyebrow: "Why this page works well for recording",
+      title: "Every area maps to a real product action",
+      checklist: [
+        "Containers, headings, buttons, and lists all live on one page.",
+        "Key modules include id / data-testid / aria-label hints for better source matching.",
+        "The page itself no longer includes a fake top-right tool UI that competes with the extension."
+      ]
     },
-    workspace: "Team Space",
-    views: {
-      home: "Overview Board",
-      delivery: "Delivery Progress",
-      reports: "Business Reports"
+    cardsSectionTitle: "Recommended demo targets",
+    cardsSectionCopy: "These three cards are the clearest way to explain the product value.",
+    cards: {
+      position: {
+        eyebrow: "Position",
+        title: "Drag this module to preview layout changes",
+        description: "Good for showing a single-card move or a grouped multi-select move.",
+        action: "Show position flow"
+      },
+      size: {
+        eyebrow: "Size",
+        title: "Resize this information panel",
+        description: "Good for showing width and height changes without touching real source code yet.",
+        action: "Show size flow"
+      },
+      describe: {
+        eyebrow: "Describe",
+        title: "Write a change request for this content block",
+        description: "Good for showing that typed instructions also become structured AI-ready context.",
+        action: "Show describe flow"
+      }
     },
-    statsTitle: "Key Metrics",
-    quickStats: [
-      { label: "Active projects", value: "18", meta: "+3 this week" },
-      { label: "Open tasks", value: "42", meta: "8 high priority" },
-      { label: "Release success", value: "99.1%", meta: "Last 30 days" }
-    ],
-    heroEyebrow: "Business overview",
-    heroTitle: "This is a normal testable business UI",
-    heroCopy:
-      "It includes navigation, sidebar, cards, buttons, lists, and a two-column layout so the extension can be verified on a realistic interface.",
-    primaryAction: "Create Task",
-    secondaryAction: "Export Report",
-    cards: [
-      {
-        title: "Order Summary",
-        description: "Shows weekly orders, refunds, and pending shipments for testing card and metric layouts.",
-        tag: "Data Card"
-      },
-      {
-        title: "Delivery Board",
-        description: "Shows task status and progress for testing lists, tags, and nested containers.",
-        tag: "List Area"
-      },
-      {
-        title: "Alert Center",
-        description: "Shows warnings, buttons, and descriptive copy for testing the right-side panel.",
-        tag: "Side Panel"
-      }
-    ],
-    viewLabel: "View",
-    pipelineEyebrow: "Delivery cadence",
-    pipelineTitle: "Plan for this week",
-    exportPlan: "Export Plan",
-    timeline: [
-      {
-        title: "Requirement review",
-        description: "Confirm design changes, acceptance criteria, and risks before scheduling work."
-      },
-      {
-        title: "UI integration",
-        description: "Align page states, mocked APIs, and layout details before QA."
-      },
-      {
-        title: "Release check",
-        description: "Verify monitoring, rollback strategy, and critical paths before launch."
-      }
-    ],
-    activityEyebrow: "Recent activity",
-    activityTitle: "Team Log",
-    refresh: "Refresh",
-    activityFeed: [
-      "East region weekly report synced to shared storage",
-      "Design review finished today at 3:00 PM",
-      "Settlement service API moved into gradual rollout"
-    ]
+    workspace: {
+      title: "A cleaner workspace that still feels real",
+      copy: "The lower section keeps a common left-config / right-content layout so you can demonstrate hierarchy-aware targeting.",
+      structureTitle: "Left config column",
+      structureItems: ["Brand block", "State filters", "Action buttons", "Rules list"],
+      previewTitle: "Right content column",
+      previewItems: ["Header bar", "Summary card", "Content grid", "Supporting copy"],
+      footer: "You can also intentionally select a text node to show how the extension adds parent-container clues."
+    }
   }
-} as const;
+};
 
 function getDemoLocale(): DemoLocale {
   return navigator.language.toLowerCase().startsWith("zh") ? "zh-CN" : "en-US";
@@ -152,127 +144,176 @@ function App(): JSX.Element {
   const copy = messages[locale];
 
   return (
-    <div className="app-shell">
-      <header className="topbar">
-        <div className="brand-mark" aria-hidden="true">
-          <span className="brand-mark__core" />
-          <span className="brand-mark__pulse" />
-        </div>
-        <div className="topbar__title-group">
-          <p className="eyebrow">{copy.eyebrow}</p>
-          <h1>{copy.title}</h1>
-        </div>
-        <nav className="topbar__nav" aria-label={locale === "zh-CN" ? "主导航" : "Primary navigation"}>
-          <a href="#overview">{copy.nav.overview}</a>
-          <a href="#workspace">{copy.nav.workspace}</a>
-          <a href="#activity">{copy.nav.activity}</a>
-        </nav>
-      </header>
+    <div className="demo-shell">
+      <main className="demo-page">
+        <section className="hero-card" id="demo-hero" data-testid="demo-hero" aria-label={copy.badge}>
+          <div className="hero-card__copy">
+            <p className="eyebrow">{copy.badge}</p>
+            <h1>{copy.title}</h1>
+            <p className="hero-card__subtitle">{copy.subtitle}</p>
+            <p className="hero-card__note">{copy.note}</p>
 
-      <div className="layout">
-        <aside className="sidebar" aria-label={locale === "zh-CN" ? "页面导航" : "Page navigation"}>
-          <section className="sidebar__section" id="workspace">
-            <p className="sidebar__label">{copy.workspace}</p>
-            <button className="sidebar__item sidebar__item--active" type="button">
-              {copy.views.home}
-            </button>
-            <button className="sidebar__item" type="button">
-              {copy.views.delivery}
-            </button>
-            <button className="sidebar__item" type="button">
-              {copy.views.reports}
-            </button>
-          </section>
-
-          <section className="sidebar__section">
-            <p className="sidebar__label">{copy.statsTitle}</p>
-            <div className="stats-list">
-              {copy.quickStats.map((stat) => (
-                <article className="stat-card" key={stat.label}>
-                  <p>{stat.label}</p>
-                  <strong>{stat.value}</strong>
-                  <span>{stat.meta}</span>
-                </article>
+            <div className="step-strip" aria-label={locale === "zh-CN" ? "演示步骤" : "Demo steps"}>
+              {copy.steps.map((step, index) => (
+                <span className="step-chip" key={step}>
+                  <strong>{index + 1}</strong>
+                  {step}
+                </span>
               ))}
             </div>
-          </section>
-        </aside>
+          </div>
 
-        <main className="content">
-          <section className="hero-panel" id="overview">
-            <div>
-              <p className="eyebrow">{copy.heroEyebrow}</p>
-              <h2>{copy.heroTitle}</h2>
-              <p className="hero-panel__copy">{copy.heroCopy}</p>
-            </div>
-            <div className="hero-panel__actions">
-              <button className="primary-button" type="button">
-                {copy.primaryAction}
-              </button>
-              <button className="secondary-button" type="button">
-                {copy.secondaryAction}
-              </button>
-            </div>
-          </section>
+          <aside
+            className="proof-card"
+            id="proof-card"
+            data-testid="proof-card"
+            data-slot="proof-card"
+            aria-label={copy.proof.title}
+          >
+            <p className="eyebrow">{copy.proof.eyebrow}</p>
+            <h2>{copy.proof.title}</h2>
+            <ul className="proof-list">
+              {copy.proof.checklist.map((item) => (
+                <li key={item}>{item}</li>
+              ))}
+            </ul>
+          </aside>
+        </section>
 
-          <section className="cards-grid">
-            {copy.cards.map((card) => (
-              <article className="feature-card" key={card.title}>
-                <div className="feature-card__header">
-                  <span className="feature-card__tag">{card.tag}</span>
-                  <button className="ghost-button" type="button" aria-label={`${copy.viewLabel} ${card.title}`}>
-                    {copy.viewLabel}
-                  </button>
-                </div>
-                <h3>{card.title}</h3>
-                <p>{card.description}</p>
-              </article>
-            ))}
-          </section>
+        <section className="section-head">
+          <div>
+            <p className="eyebrow">{copy.cardsSectionTitle}</p>
+            <h2>{copy.cardsSectionCopy}</h2>
+          </div>
+        </section>
 
-          <section className="content-grid">
-            <article className="detail-panel">
-              <div className="detail-panel__header">
-                <div>
-                  <p className="eyebrow">{copy.pipelineEyebrow}</p>
-                  <h3>{copy.pipelineTitle}</h3>
-                </div>
-                <button className="secondary-button" type="button">
-                  {copy.exportPlan}
-                </button>
+        <section className="value-grid" aria-label={copy.cardsSectionTitle}>
+          <article
+            className="value-card value-card--position"
+            id="position-card"
+            data-testid="position-card"
+            data-slot="demo-card"
+            aria-label={copy.cards.position.title}
+          >
+            <p className="eyebrow">{copy.cards.position.eyebrow}</p>
+            <h3>{copy.cards.position.title}</h3>
+            <p>{copy.cards.position.description}</p>
+            <button className="demo-button" type="button">
+              {copy.cards.position.action}
+            </button>
+          </article>
+
+          <article
+            className="value-card value-card--size"
+            id="size-card"
+            data-testid="size-card"
+            data-slot="demo-card"
+            aria-label={copy.cards.size.title}
+          >
+            <p className="eyebrow">{copy.cards.size.eyebrow}</p>
+            <h3>{copy.cards.size.title}</h3>
+            <p>{copy.cards.size.description}</p>
+            <button className="demo-button" type="button">
+              {copy.cards.size.action}
+            </button>
+          </article>
+
+          <article
+            className="value-card value-card--describe"
+            id="describe-card"
+            data-testid="describe-card"
+            data-slot="demo-card"
+            aria-label={copy.cards.describe.title}
+          >
+            <p className="eyebrow">{copy.cards.describe.eyebrow}</p>
+            <h3>{copy.cards.describe.title}</h3>
+            <p>{copy.cards.describe.description}</p>
+            <button className="demo-button" type="button">
+              {copy.cards.describe.action}
+            </button>
+          </article>
+        </section>
+
+        <section
+          className="workspace-card"
+          id="workspace-shell"
+          data-testid="workspace-shell"
+          aria-label={copy.workspace.title}
+        >
+          <div className="workspace-card__intro">
+            <p className="eyebrow">{copy.workspace.title}</p>
+            <h2>{copy.workspace.copy}</h2>
+          </div>
+
+          <div className="workspace-grid">
+            <aside
+              className="workspace-panel"
+              id="config-panel"
+              data-testid="config-panel"
+              data-slot="config-panel"
+              aria-label={copy.workspace.structureTitle}
+            >
+              <div className="workspace-panel__header">
+                <strong>{copy.workspace.structureTitle}</strong>
+                <span className="panel-badge">config</span>
               </div>
-              <div className="timeline">
-                {copy.timeline.map((item, index) => (
-                  <div className="timeline__item" key={item.title}>
-                    <span className="timeline__index">{String(index + 1).padStart(2, "0")}</span>
-                    <div>
-                      <h4>{item.title}</h4>
-                      <p>{item.description}</p>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </article>
-
-            <article className="activity-panel" id="activity">
-              <div className="detail-panel__header">
-                <div>
-                  <p className="eyebrow">{copy.activityEyebrow}</p>
-                  <h3>{copy.activityTitle}</h3>
-                </div>
-                <button className="ghost-button" type="button">
-                  {copy.refresh}
-                </button>
-              </div>
-              <ul className="activity-list">
-                {copy.activityFeed.map((item) => (
+              <ul className="panel-list">
+                {copy.workspace.structureItems.map((item) => (
                   <li key={item}>{item}</li>
                 ))}
               </ul>
-            </article>
-          </section>
-        </main>
-      </div>
+              <div className="button-group">
+                <button className="demo-button demo-button--secondary" type="button">
+                  Apply
+                </button>
+                <button className="demo-button demo-button--ghost" type="button">
+                  Reset
+                </button>
+              </div>
+            </aside>
+
+            <section
+              className="workspace-panel workspace-panel--content"
+              id="preview-panel"
+              data-testid="preview-panel"
+              data-slot="preview-panel"
+              aria-label={copy.workspace.previewTitle}
+            >
+              <div className="workspace-panel__header">
+                <strong>{copy.workspace.previewTitle}</strong>
+                <span className="panel-badge">preview</span>
+              </div>
+
+              <div className="content-stack">
+                <header className="content-bar" id="preview-header" data-testid="preview-header">
+                  <div>
+                    <p className="eyebrow">Live block</p>
+                    <h3>Studio Surface</h3>
+                  </div>
+                  <button className="demo-button demo-button--ghost" type="button">
+                    Share
+                  </button>
+                </header>
+
+                <article className="summary-card" id="summary-card" data-testid="summary-card" aria-label="Summary card">
+                  <strong>72%</strong>
+                  <p>{locale === "zh-CN" ? "当前录屏脚本已准备完成" : "Recording script is ready"}</p>
+                </article>
+
+                <div className="mini-grid" id="content-grid" data-testid="content-grid">
+                  {copy.workspace.previewItems.map((item) => (
+                    <article className="mini-card" key={item}>
+                      <span>{item}</span>
+                    </article>
+                  ))}
+                </div>
+              </div>
+            </section>
+          </div>
+
+          <p className="workspace-footnote">{copy.workspace.footer}</p>
+        </section>
+      </main>
     </div>
   );
 }

@@ -8,6 +8,14 @@ export type CopyContextComponent = {
   selector: string;
   domPath: string;
   parentSignature?: string;
+  ancestorTrail: string[];
+  semanticPath?: string;
+  closestHeading?: string;
+  landmarkHint?: string;
+  siblingIndex: number;
+  siblingCount: number;
+  childCount: number;
+  testAttributes: string[];
   role?: string;
   ariaLabel?: string;
   pageUrl: string;
@@ -75,6 +83,13 @@ type OverlayStrings = {
     selector: string;
     domPath: string;
     parent: string;
+    semanticPath: string;
+    ancestorTrail: string;
+    closestHeading: string;
+    landmarkHint: string;
+    siblingPosition: string;
+    childCount: string;
+    testAttributes: string;
     role: string;
     ariaLabel: string;
     pageUrl: string;
@@ -111,6 +126,7 @@ type OverlayStrings = {
   resetPreviewHint: string;
   aiCopyHint: string;
   controlsHint: string;
+  hierarchyHint: string;
   selectBeforeResize: string;
   resizeSingleOnly: string;
   resizeFocusedPrimary: string;
@@ -131,7 +147,7 @@ const strings: Record<SupportedLocale, ExtensionStrings> = {
     },
     popup: {
       title: "AI UI 运行时",
-      subtitle: "扩展默认静默。只有你为当前页面启用调试后，才会接管交互并提供可视化调整能力。",
+      subtitle: "扩展默认静默。只有你为当前页面启用调试后，它才会接管交互并生成适合发给 AI 的 UI 修改上下文。",
       pageLabel: "当前页面",
       pageUnknown: "未知页面",
       statusLabel: "状态",
@@ -141,10 +157,10 @@ const strings: Record<SupportedLocale, ExtensionStrings> = {
       unsupportedPage: "当前页面不支持注入 overlay，请切换到普通网页、本地开发站点或 file 页面。",
       enableButton: "启用当前页调试",
       disableButton: "关闭当前页调试",
-      enabledHint: "启用后 popup 会自动关闭，回到页面即可直接单击选择并拖动调整。",
-      inactiveHint: "启用后默认进入“位置”模式；如果你想手写修改要求，可以切到“描述”填写。",
+      enabledHint: "启用后 popup 会自动关闭，回到页面即可开始选择、调整或描述修改需求。",
+      inactiveHint: "启用后默认进入“位置”模式；如果你想直接写修改要求，可以切到“描述”。",
       stepsTitle: "使用步骤",
-      steps: ["启用当前页调试", "单击元素选择", "在“位置”里拖动调整", "或切到“描述”写修改要求", "复制给 AI"],
+      steps: ["启用当前页调试", "点击目标元素", "在“位置”或“尺寸”里预览", "或切到“描述”写需求", "复制给 AI"],
       refreshButton: "刷新状态",
       noActiveTab: "没有找到当前激活的标签页。",
       readStateError: "读取当前页面状态失败。"
@@ -161,17 +177,17 @@ const strings: Record<SupportedLocale, ExtensionStrings> = {
       },
       modeHelpTitle: "当前模式说明",
       modeGuidance: {
-        adjust: "位置模式用于调整摆放。直接单击元素即可选中，拖动已选中元素即可移动；按住 Ctrl / Cmd 再单击可以多选后整体移动。",
-        inspect: "描述模式用于选中目标并写修改要求。这个模式下仍然可以继续单击页面元素切换目标，然后把你的需求发给 AI。",
+        adjust: "位置模式用于调整摆放。点击即可选中，拖动已选元素即可移动；按住 Ctrl / Cmd 再点击可以多选后整体移动。",
+        inspect: "描述模式用于继续选中目标并编写文字修改要求。这个模式下仍然可以点页面元素切换目标。",
         resize: "尺寸模式只支持单选。拖动边缘或角点做尺寸预览。"
       },
       hoverLabel: "悬停目标",
       selectedTitle: "技术定位信息",
       selectedSummaryTitle: "当前目标",
       selectedCountLabel: "选中数量",
-      emptySelection: "直接在页面上单击一个元素即可开始调整。",
-      selectedTextLabel: "页面文本",
-      multiSelectHint: "提示：调整模式下支持 Ctrl / Cmd + 单击多选；拖动任意已选元素都会带动整组一起移动。",
+      emptySelection: "先点击页面中的一个元素，再进行调整或描述。",
+      selectedTextLabel: "可见文本",
+      multiSelectHint: "提示：位置模式支持 Ctrl / Cmd + 点击多选；拖动任意已选元素都会带动整组移动。",
       fields: {
         id: "运行时 ID",
         tag: "标签",
@@ -179,42 +195,50 @@ const strings: Record<SupportedLocale, ExtensionStrings> = {
         selector: "选择器线索",
         domPath: "DOM 路径",
         parent: "父级容器",
+        semanticPath: "语义层级",
+        ancestorTrail: "祖先链路",
+        closestHeading: "最近标题",
+        landmarkHint: "地标容器",
+        siblingPosition: "同级位置",
+        childCount: "子节点数量",
+        testAttributes: "测试属性",
         role: "Role",
         ariaLabel: "Aria Label",
         pageUrl: "页面 URL"
       },
-      lastActionEmpty: "还没有捕获到操作。",
+      lastActionEmpty: "还没有捕获到视觉操作。",
       latestIntentTitle: "结构化 Intent",
       latestIntentEmpty: "还没有生成 Intent JSON。",
       captureTitle: "已捕获 UI 意图",
       whatChangedTitle: "发生了什么变化",
       quickActionsTitle: "常用操作",
       advancedTitle: "高级信息",
-      advancedHint: "JSON、定位线索与完整上下文",
+      advancedHint: "JSON、层级线索与完整上下文",
       useWithAiTitle: "其他导出格式",
       promptComposerTitle: "手动修改要求",
-      promptPlaceholder: "例如：让这个卡片更紧凑一点，标题字号小 2px，按钮改成描边主色风格，整体左对齐。",
+      promptPlaceholder: "例如：把这个卡片改得更紧凑一些，标题缩小 2px，按钮改成描边主色风格，整体左对齐。",
       promptDisabledPlaceholder: "先选中一个元素，再在这里写你希望 AI 如何修改它。",
-      promptHint: "这段文字会和当前选中的元素定位信息一起进入主提示词。",
-      promptReadyHint: "已写入这次文字修改要求。",
-      promptSelectionHint: "复制给 AI 时，会优先把这段要求绑定到当前选中的目标上。",
+      promptHint: "这段文字会和当前选中目标的定位线索一起进入主提示词。",
+      promptReadyHint: "这次手动修改要求已准备好。",
+      promptSelectionHint: "复制给 AI 时，会把这段要求绑定到当前选中的目标上。",
       clearPrompt: "清空输入",
       clearPromptSuccess: "已清空手动修改要求。",
-      copyForAiEmptyHint: "先选中目标，然后要么做一次拖拽或缩放预览，要么在“查看”里写下你的修改要求。",
+      copyForAiEmptyHint: "先选中目标，然后做一次位置 / 尺寸预览，或者在“描述”里写下你的修改要求。",
       copyForAi: "复制给 AI",
       copyJson: "复制 JSON",
       copyFullContext: "复制完整上下文",
       undoPreview: "撤销这次预览",
       exit: "退出调试",
       dismiss: "收起",
-      copyForAiSuccess: "已复制推荐给 AI 的主提示词。",
+      copyForAiSuccess: "已复制推荐发给 AI 的主提示词。",
       copyJsonSuccess: "已复制 Intent JSON。",
       copyFullContextSuccess: "已复制完整上下文。",
       copyFailure: "复制失败，请检查当前页面的剪贴板权限。",
       previewResetSuccess: "已撤销最近一次视觉预览。",
-      resetPreviewHint: "撤销只会恢复最近一次 move / resize 的临时预览，不会关闭调试。",
-      aiCopyHint: "“复制给 AI”会自动带上定位线索、最近一次视觉操作，以及你手写的修改要求。",
+      resetPreviewHint: "撤销只恢复最近一次 move / resize 的临时效果，不会关闭调试。",
+      aiCopyHint: "“复制给 AI”会自动附带定位线索、组件层级、最近一次视觉操作，以及你的手写修改要求。",
       controlsHint: "控制台 + 面板",
+      hierarchyHint: "这些层级线索用于帮助 AI 定位真正控制布局的父级容器，而不是只改最内层节点。",
       selectBeforeResize: "需要先选中一个元素，才能进入“尺寸”。",
       resizeSingleOnly: "尺寸模式只支持单选。",
       resizeFocusedPrimary: "已自动聚焦最后选中的元素，并切换到“尺寸”。",
@@ -228,7 +252,7 @@ const strings: Record<SupportedLocale, ExtensionStrings> = {
     },
     popup: {
       title: "AI UI Runtime",
-      subtitle: "The extension stays silent by default. It only takes over interactions after you enable debug on the current page.",
+      subtitle: "The extension stays silent by default. After you enable debug on the current page, it captures UI changes and assembles context that is ready to send to AI.",
       pageLabel: "Current page",
       pageUnknown: "Unknown page",
       statusLabel: "Status",
@@ -238,10 +262,10 @@ const strings: Record<SupportedLocale, ExtensionStrings> = {
       unsupportedPage: "This page does not support overlay injection. Open a normal webpage, local dev site, or file page.",
       enableButton: "Enable Debug on This Page",
       disableButton: "Disable Debug on This Page",
-      enabledHint: "The popup closes automatically after enabling. Go back to the page and you can click to select and drag immediately.",
-      inactiveHint: "After enabling, the overlay starts in Position mode. Switch to Describe when you want to type a manual change request.",
+      enabledHint: "The popup closes automatically after enabling. Go back to the page to select, adjust, or describe changes.",
+      inactiveHint: "After enabling, the overlay starts in Position mode. Switch to Describe when you want to type a request directly.",
       stepsTitle: "How to use",
-      steps: ["Enable debug", "Click to select", "Drag in Position mode", "Or switch to Describe and type a request", "Copy for AI"],
+      steps: ["Enable debug", "Click a target element", "Preview in Position or Size", "Or switch to Describe and type a request", "Copy for AI"],
       refreshButton: "Refresh Status",
       noActiveTab: "No active tab found.",
       readStateError: "Unable to read the current page state."
@@ -259,16 +283,16 @@ const strings: Record<SupportedLocale, ExtensionStrings> = {
       modeHelpTitle: "Mode guidance",
       modeGuidance: {
         adjust: "Position mode is for placement changes. Click to select, then drag the selected element to move it. Hold Ctrl / Cmd while clicking to build a multi-select move group.",
-        inspect: "Describe mode is for selecting the target and typing your own change request. You can still click page elements here to switch the current target before copying for AI.",
-        resize: "Size mode supports a single selected element. Drag an edge or corner handle to preview size changes."
+        inspect: "Describe mode is for keeping the current target selected and typing your own change request. You can still click page elements here to switch targets.",
+        resize: "Size mode supports only one selected element. Drag an edge or corner handle to preview size changes."
       },
       hoverLabel: "Hover target",
       selectedTitle: "Technical locator details",
       selectedSummaryTitle: "Current target",
       selectedCountLabel: "Selected count",
-      emptySelection: "Click any page element to start adjusting.",
+      emptySelection: "Select an element on the page before adjusting or describing changes.",
       selectedTextLabel: "Visible text",
-      multiSelectHint: "Tip: in Adjust mode, Ctrl / Cmd + click adds multiple elements. Drag any selected element to move the whole group.",
+      multiSelectHint: "Tip: in Position mode, Ctrl / Cmd + click adds multiple elements. Drag any selected element to move the whole group.",
       fields: {
         id: "Runtime ID",
         tag: "Tag",
@@ -276,28 +300,35 @@ const strings: Record<SupportedLocale, ExtensionStrings> = {
         selector: "Selector hint",
         domPath: "DOM path",
         parent: "Parent container",
+        semanticPath: "Semantic path",
+        ancestorTrail: "Ancestor trail",
+        closestHeading: "Closest heading",
+        landmarkHint: "Landmark container",
+        siblingPosition: "Sibling position",
+        childCount: "Child count",
+        testAttributes: "Test attributes",
         role: "Role",
-        ariaLabel: "Aria Label",
+        ariaLabel: "Aria label",
         pageUrl: "Page URL"
       },
-      lastActionEmpty: "No action captured yet.",
+      lastActionEmpty: "No visual action captured yet.",
       latestIntentTitle: "Structured Intent",
       latestIntentEmpty: "No intent JSON generated yet.",
       captureTitle: "UI Intent Captured",
       whatChangedTitle: "What changed",
       quickActionsTitle: "Quick actions",
       advancedTitle: "Advanced details",
-      advancedHint: "JSON, locator hints, and full context",
+      advancedHint: "JSON, hierarchy hints, and full context",
       useWithAiTitle: "Other export formats",
       promptComposerTitle: "Manual change request",
       promptPlaceholder: "Example: Make this card more compact, reduce the title size by 2px, switch the button to an outlined primary style, and align the content to the left.",
       promptDisabledPlaceholder: "Select an element first, then describe how you want AI to change it.",
-      promptHint: "This text will be combined with the current target locator hints in the main AI prompt.",
-      promptReadyHint: "Manual request is ready.",
-      promptSelectionHint: "When you copy for AI, this request is attached to the currently selected target.",
+      promptHint: "This text is merged with the current target locator hints in the main AI prompt.",
+      promptReadyHint: "Manual change request is ready.",
+      promptSelectionHint: "When you copy for AI, this request is attached to the current selection.",
       clearPrompt: "Clear text",
       clearPromptSuccess: "Cleared the manual change request.",
-      copyForAiEmptyHint: "Select a target first, then either capture a move / resize preview or type your own change request in Inspect.",
+      copyForAiEmptyHint: "Select a target first, then either capture a Position / Size preview or type your own change request in Describe mode.",
       copyForAi: "Copy for AI",
       copyJson: "Copy JSON",
       copyFullContext: "Copy Full Context",
@@ -310,11 +341,12 @@ const strings: Record<SupportedLocale, ExtensionStrings> = {
       copyFailure: "Copy failed. Check clipboard permissions on this page.",
       previewResetSuccess: "The latest visual preview was reverted.",
       resetPreviewHint: "Undo restores only the latest move / resize preview without leaving debug mode.",
-      aiCopyHint: "Copy for AI includes locator hints, the latest visual action, and your typed change request when available.",
+      aiCopyHint: "Copy for AI automatically includes locator hints, hierarchy clues, the latest visual action, and your typed request.",
       controlsHint: "console + panel",
-      selectBeforeResize: "Select one element before entering Size.",
+      hierarchyHint: "Hierarchy clues help AI find the real parent container or layout boundary instead of changing only the innermost node.",
+      selectBeforeResize: "Select one element before entering Size mode.",
       resizeSingleOnly: "Size mode supports only one selected element.",
-      resizeFocusedPrimary: "Focused the last selected element and switched to Size.",
+      resizeFocusedPrimary: "Focused the last selected element and switched to Size mode.",
       intentCaptured: "The action finished and the intent is ready."
     }
   }
@@ -340,16 +372,32 @@ function formatOptionalLine(label: string, value: string | undefined): string | 
   return value ? `${label}: ${value}` : null;
 }
 
+function formatListLine(label: string, values: string[]): string | null {
+  return values.length > 0 ? `${label}: ${values.join(" > ")}` : null;
+}
+
 function formatTargetLine(component: CopyContextComponent, locale: SupportedLocale): string {
   const summary = component.text
     ? `${formatElementSignature(component.tag, component.classList)} | "${component.text}"`
     : formatElementSignature(component.tag, component.classList);
 
-  if (locale === "zh-CN") {
-    return `${summary} | selector=${component.selector} | parent=${component.parentSignature ?? "无"}`;
-  }
+  const semantic = component.semanticPath
+    ? locale === "zh-CN"
+      ? ` | 语义层级=${component.semanticPath}`
+      : ` | semantic=${component.semanticPath}`
+    : "";
+  const heading = component.closestHeading
+    ? locale === "zh-CN"
+      ? ` | 最近标题=${component.closestHeading}`
+      : ` | heading=${component.closestHeading}`
+    : "";
+  const landmark = component.landmarkHint
+    ? locale === "zh-CN"
+      ? ` | 地标=${component.landmarkHint}`
+      : ` | landmark=${component.landmarkHint}`
+    : "";
 
-  return `${summary} | selector=${component.selector} | parent=${component.parentSignature ?? "(none)"}`;
+  return `${summary} | selector=${component.selector}${semantic}${heading}${landmark}`;
 }
 
 function formatLocatorBlock(component: CopyContextComponent, locale: SupportedLocale): string[] {
@@ -361,6 +409,13 @@ function formatLocatorBlock(component: CopyContextComponent, locale: SupportedLo
     `selectorHint: ${component.selector}`,
     `domPathHint: ${component.domPath}`,
     formatOptionalLine("parentContainer", component.parentSignature),
+    formatOptionalLine("semanticPath", component.semanticPath),
+    formatListLine("ancestorTrail", component.ancestorTrail),
+    formatOptionalLine("closestHeading", component.closestHeading),
+    formatOptionalLine("landmarkHint", component.landmarkHint),
+    `siblingPosition: ${component.siblingIndex}/${component.siblingCount}`,
+    `childCount: ${component.childCount}`,
+    formatOptionalLine("testAttributes", component.testAttributes.join(", ")),
     formatOptionalLine("visibleText", component.text),
     formatOptionalLine("role", component.role),
     formatOptionalLine("ariaLabel", component.ariaLabel)
@@ -402,8 +457,8 @@ function buildSourceGuidance(locale: SupportedLocale, component: CopyContextComp
 function buildVisualChangeBlock(locale: SupportedLocale, context: AiPromptContext): string[] {
   if (!context.intent) {
     return locale === "zh-CN"
-      ? ["本次没有捕获到拖拽或缩放预览，请主要依据下面的文字修改要求执行。"]
-      : ["No move or resize preview was captured. Use the manual change request below as the primary instruction."];
+      ? ["本次没有捕获到位置或尺寸预览，请主要依据下面的文字修改要求执行。"]
+      : ["No Position or Size preview was captured. Use the manual change request below as the primary instruction."];
   }
 
   return [
@@ -551,17 +606,18 @@ export function buildAiPrompt(locale: SupportedLocale, context: AiPromptContext)
       intentText,
       "",
       "实现要求：",
-      "1. 先根据页面 URL、可见文本、DOM 路径、父级容器关系定位真实源码位置。",
+      "1. 先根据页面 URL、可见文本、DOM 路径、父级容器、语义层级和祖先链路定位真实源码位置。",
       "2. runtimeComponentId 只是运行时临时标识，不能单独当作源码组件名。",
-      `3. ${sourceGuidance}`,
-      `4. ${actionGuidance}`,
+      "3. siblingPosition、childCount 和 ancestorTrail 用来帮助你判断应该改当前节点、父级容器，还是更高一层布局。",
+      `4. ${sourceGuidance}`,
+      `5. ${actionGuidance}`,
       userPrompt
-        ? "5. 如果用户文字要求与视觉预览有冲突，以用户这次手写的修改要求为准，并说明你的取舍。"
-        : "5. 如果有视觉预览，就把它当作本次修改的直接目标。",
+        ? "6. 如果用户文字要求与视觉预览有冲突，以用户这次手写的修改要求为准，并说明你的取舍。"
+        : "6. 如果有视觉预览，就把它当作本次修改的直接目标。",
       context.intent?.action === "move-group"
-        ? "6. 如果是多选整体移动，尽量在共同父级容器或布局层处理，而不是分别打很多脆弱补丁。"
-        : "6. 修改时优先输出可维护的布局或样式方案，而不是临时 hack。",
-      "7. 输出时先说明你锁定了哪个源码位置，再给出修改方案或 patch。"
+        ? "7. 如果是多选整体移动，尽量在共同父级容器或布局层处理，而不是分别打很多脆弱补丁。"
+        : "7. 修改时优先输出可维护的布局或样式方案，而不是临时 hack。",
+      "8. 输出时先说明你锁定了哪个源码位置，再给出修改方案或 patch。"
     ].join("\n");
   }
 
@@ -583,17 +639,18 @@ export function buildAiPrompt(locale: SupportedLocale, context: AiPromptContext)
     intentText,
     "",
     "Implementation requirements:",
-    "1. Use the page URL, visible text, DOM path, and parent container hints to find the real source location.",
+    "1. Use the page URL, visible text, DOM path, parent container, semantic path, ancestor trail, closest heading, and landmark container to locate the real source file and layout boundary.",
     "2. The runtimeComponentId is temporary and must not be treated as the source component name.",
-    `3. ${sourceGuidance}`,
-    `4. ${actionGuidance}`,
+    "3. Use siblingPosition, childCount, ancestorTrail, and landmark hints to decide whether the fix belongs on this node, its parent container, or a higher layout wrapper.",
+    `4. ${sourceGuidance}`,
+    `5. ${actionGuidance}`,
     userPrompt
-      ? "5. If the typed user request conflicts with the visual preview, follow the typed request and explain the tradeoff."
-      : "5. If a visual preview exists, treat it as the direct target for the implementation.",
+      ? "6. If the typed user request conflicts with the visual preview, follow the typed request and explain the tradeoff."
+      : "6. If a visual preview exists, treat it as the direct target for the implementation.",
     context.intent?.action === "move-group"
-      ? "6. If this is a group move, prefer handling it at the shared parent layout or container level."
-      : "6. Prefer a maintainable layout or styling solution instead of a temporary hack.",
-    "7. First explain which source location you matched, then provide the code change or patch."
+      ? "7. If this is a group move, prefer handling it at the shared parent layout or container level."
+      : "7. Prefer a maintainable layout or styling solution instead of a temporary hack.",
+    "8. First explain which source location you matched, then provide the code change or patch."
   ].join("\n");
 }
 

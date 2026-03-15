@@ -113,6 +113,14 @@ function toCopyComponent(component: NonNullable<SelectedComponent>): CopyContext
     selector: component.selector,
     domPath: component.domPath,
     parentSignature: component.parentSignature,
+    ancestorTrail: component.ancestorTrail,
+    semanticPath: component.semanticPath,
+    closestHeading: component.closestHeading,
+    landmarkHint: component.landmarkHint,
+    siblingIndex: component.siblingIndex,
+    siblingCount: component.siblingCount,
+    childCount: component.childCount,
+    testAttributes: component.testAttributes,
     role: component.role,
     ariaLabel: component.ariaLabel,
     pageUrl: window.location.href
@@ -788,13 +796,49 @@ export function OverlayApp({ locale, onExit, overlayHost }: OverlayAppProps): JS
             <div className="aiui-disclosure__content">
               <section className="aiui-panel__section">
                 <p className="aiui-panel__label">{strings.overlay.selectedTitle}</p>
+                <p className="aiui-panel__note">{strings.overlay.hierarchyHint}</p>
                 {selectedComponents.length > 0 ? (
                   <dl className="aiui-details">
                     {selectedComponents.map((component) => (
                       <div key={component.id}>
                         <dt>{formatElementSignature(component.tag, component.classList)}</dt>
-                        <dd>{component.selector}</dd>
-                        <dd>{component.domPath}</dd>
+                        <dd>
+                          {strings.overlay.fields.selector}: {component.selector}
+                        </dd>
+                        <dd>
+                          {strings.overlay.fields.domPath}: {component.domPath}
+                        </dd>
+                        {component.semanticPath ? (
+                          <dd>
+                            {strings.overlay.fields.semanticPath}: {component.semanticPath}
+                          </dd>
+                        ) : null}
+                        {component.ancestorTrail.length > 0 ? (
+                          <dd>
+                            {strings.overlay.fields.ancestorTrail}: {component.ancestorTrail.join(" > ")}
+                          </dd>
+                        ) : null}
+                        {component.closestHeading ? (
+                          <dd>
+                            {strings.overlay.fields.closestHeading}: {component.closestHeading}
+                          </dd>
+                        ) : null}
+                        {component.landmarkHint ? (
+                          <dd>
+                            {strings.overlay.fields.landmarkHint}: {component.landmarkHint}
+                          </dd>
+                        ) : null}
+                        <dd>
+                          {strings.overlay.fields.siblingPosition}: {component.siblingIndex}/{component.siblingCount}
+                        </dd>
+                        <dd>
+                          {strings.overlay.fields.childCount}: {component.childCount}
+                        </dd>
+                        {component.testAttributes.length > 0 ? (
+                          <dd>
+                            {strings.overlay.fields.testAttributes}: {component.testAttributes.join(", ")}
+                          </dd>
+                        ) : null}
                       </div>
                     ))}
                   </dl>

@@ -3,6 +3,20 @@ import type { SelectedComponent } from "./state";
 
 const TEXT_LIKE_TAGS = new Set(["H1", "H2", "H3", "H4", "H5", "H6", "P", "SPAN", "STRONG", "EM", "SMALL"]);
 const SELF_STABLE_TAGS = new Set(["BUTTON", "A", "INPUT", "TEXTAREA", "SELECT", "LABEL", "IMG", "VIDEO", "CANVAS"]);
+const LANDMARK_TAGS = new Set(["HEADER", "MAIN", "NAV", "ASIDE", "SECTION", "ARTICLE", "FOOTER", "FORM", "DIALOG"]);
+const TEST_ATTRIBUTE_NAMES = [
+  "data-testid",
+  "data-test",
+  "data-qa",
+  "data-cy",
+  "data-slot",
+  "data-state",
+  "data-variant",
+  "data-component",
+  "name",
+  "aria-controls",
+  "aria-labelledby"
+] as const;
 
 function toHTMLElement(target: EventTarget | null): HTMLElement | null {
   if (target instanceof HTMLElement) {
@@ -79,6 +93,91 @@ function buildDomPath(element: HTMLElement, depth = 5): string {
   return segments.join(" > ");
 }
 
+function buildAncestorTrail(element: HTMLElement, depth = 4): string[] {
+  const segments: string[] = [];
+  let current = element.parentElement;
+
+  while (current && segments.length < depth) {
+    if (current.tagName === "BODY" || current.tagName === "HTML") {
+      break;
+    }
+
+    segments.push(buildSelectorSegment(current));
+    current = current.parentElement;
+  }
+
+  return segments;
+}
+
+function isLandmarkElement(element: HTMLElement): boolean {
+  if (LANDMARK_TAGS.has(element.tagName)) {
+    return true;
+  }
+
+  return element.hasAttribute("role");
+}
+
+function buildSemanticPath(element: HTMLElement, depth = 5): string | undefined {
+  const landmarks: string[] = [];
+  let current: HTMLElement | null = element;
+
+  while (current && landmarks.length < depth) {
+    if (current.tagName === "BODY" || current.tagName === "HTML") {
+      break;
+    }
+
+    if (isLandmarkElement(current)) {
+      landmarks.unshift(buildSelectorSegment(current));
+    }
+
+    current = current.parentElement;
+  }
+
+  return landmarks.length > 0 ? landmarks.join(" > ") : undefined;
+}
+
+function getClosestHeading(element: HTMLElement): string | undefined {
+  const root = element.closest("section, article, main, aside, nav, header, form") ?? element.parentElement ?? document.body;
+  const heading = root.querySelector("h1, h2, h3, h4, h5, h6");
+  if (!(heading instanceof HTMLElement)) {
+    return undefined;
+  }
+
+  return getTextPreview(heading);
+}
+
+function getLandmarkHint(element: HTMLElement): string | undefined {
+  const landmark = element.closest("main, section, article, aside, nav, header, footer, form, [role]");
+  if (!(landmark instanceof HTMLElement)) {
+    return undefined;
+  }
+
+  const tag = landmark.tagName.toLowerCase();
+  const idPart = landmark.id ? `#${landmark.id}` : "";
+  const role = getAttributePreview(landmark, "role");
+  const label = getAttributePreview(landmark, "aria-label");
+
+  return [tag + idPart, role ? `role=${role}` : null, label ? `label=${label}` : null].filter(Boolean).join(" | ");
+}
+
+function getSiblingStats(element: HTMLElement): { siblingIndex: number; siblingCount: number } {
+  const parent = element.parentElement;
+  if (!parent) {
+    return {
+      siblingIndex: 1,
+      siblingCount: 1
+    };
+  }
+
+  const siblings = Array.from(parent.children).filter((child): child is HTMLElement => child instanceof HTMLElement);
+  const siblingIndex = siblings.indexOf(element) + 1;
+
+  return {
+    siblingIndex: siblingIndex > 0 ? siblingIndex : 1,
+    siblingCount: siblings.length || 1
+  };
+}
+
 function getTextPreview(element: HTMLElement): string | undefined {
   const text = element.textContent?.replace(/\s+/g, " ").trim();
   if (!text) {
@@ -100,6 +199,23 @@ function getParentSignature(element: HTMLElement): string | undefined {
   }
 
   return buildSelectorSegment(parent);
+}
+
+function getTestAttributeHints(element: HTMLElement): string[] {
+  const hints: string[] = [];
+
+  if (element.id) {
+    hints.push(`id=${element.id}`);
+  }
+
+  for (const name of TEST_ATTRIBUTE_NAMES) {
+    const value = getAttributePreview(element, name);
+    if (value) {
+      hints.push(`${name}=${value}`);
+    }
+  }
+
+  return hints.slice(0, 5);
 }
 
 function isTextLikeElement(element: HTMLElement): boolean {
@@ -217,12 +333,22 @@ export function createSelectedComponent(element: HTMLElement | null): SelectedCo
     return null;
   }
 
+  const siblingStats = getSiblingStats(element);
+
   return {
     ...component,
     text: component.text ?? getTextPreview(element),
     selector: buildSelectorSegment(element),
     domPath: buildDomPath(element),
     parentSignature: getParentSignature(element),
+    ancestorTrail: buildAncestorTrail(element),
+    semanticPath: buildSemanticPath(element),
+    closestHeading: getClosestHeading(element),
+    landmarkHint: getLandmarkHint(element),
+    siblingIndex: siblingStats.siblingIndex,
+    siblingCount: siblingStats.siblingCount,
+    childCount: element.childElementCount,
+    testAttributes: getTestAttributeHints(element),
     role: getAttributePreview(element, "role"),
     ariaLabel: getAttributePreview(element, "aria-label"),
     element
