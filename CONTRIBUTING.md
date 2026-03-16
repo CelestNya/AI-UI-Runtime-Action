@@ -54,4 +54,4 @@ Use the repository PR template when possible.
 
 ## Media files
 
-Demo videos under `docs/media/` are tracked with Git LFS. If you add or update media, keep file names stable when possible so README links do not break.
+If you add screenshots or GIFs under `docs/media/`, keep file names stable when possible so README links do not break.

@@ -1,17 +1,7 @@
-# Demo Media
+# Media
 
-This folder stores repository-ready demo assets.
+The main public demo is now published externally:
 
-Current files:
+- Douyin: [为什么 AI 改网页 UI 总翻车？问题其实出在这里](https://v.douyin.com/Xexg4G9adq4/)
 
-- `ai-ui-runtime-demo.mp4`: main walkthrough video for the public repository
-
-Notes:
-
-- Video assets are tracked with Git LFS.
-- Keep future demo videos under `docs/media/` so README links stay stable.
-- If you add screenshots or GIFs later, prefer these names:
-  - `demo-overview.png`
-  - `position-flow.gif`
-  - `size-flow.gif`
-  - `describe-flow.gif`
+This folder can still be used later for screenshots or GIFs if needed.
