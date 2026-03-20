@@ -775,251 +775,253 @@ export function OverlayApp({ locale, onExit, overlayHost }: OverlayAppProps): JS
           className="aiui-panel__resize-handle aiui-panel__resize-handle--top-left"
           onPointerDown={(e) => handlePanelResizeStart(e, "top-left")}
         />
-        <div className="aiui-panel__header aiui-panel__drag-handle" onPointerDown={handlePanelPointerDown}>
-          <div>
-            <p className="aiui-panel__eyebrow">{strings.overlay.eyebrow}</p>
-            <h2>{strings.overlay.title}</h2>
-            <p className="aiui-status-line">{strings.overlay.enabledStatus}</p>
+        <div className="aiui-panel__content">
+          <div className="aiui-panel__header aiui-panel__drag-handle" onPointerDown={handlePanelPointerDown}>
+            <div>
+              <p className="aiui-panel__eyebrow">{strings.overlay.eyebrow}</p>
+              <h2>{strings.overlay.title}</h2>
+              <p className="aiui-status-line">{strings.overlay.enabledStatus}</p>
+            </div>
+            <div className="aiui-mode-box">
+              <span className="aiui-mode-box__label">{strings.overlay.modeLabel}</span>
+              <span className={`aiui-mode-chip aiui-mode-chip--${state.mode}`}>{strings.overlay.modes[state.mode]}</span>
+            </div>
           </div>
-          <div className="aiui-mode-box">
-            <span className="aiui-mode-box__label">{strings.overlay.modeLabel}</span>
-            <span className={`aiui-mode-chip aiui-mode-chip--${state.mode}`}>{strings.overlay.modes[state.mode]}</span>
-          </div>
-        </div>
 
-        <div className="aiui-toolbar" role="tablist" aria-label={strings.overlay.modeLabel}>
-          <button
-            type="button"
-            className={`aiui-toolbar__button ${state.mode === "adjust" ? "is-active" : ""}`}
-            onClick={() => setMode("adjust")}
-          >
-            {strings.overlay.modes.adjust}
-          </button>
-          <button
-            type="button"
-            className={`aiui-toolbar__button ${state.mode === "resize" ? "is-active" : ""}`}
-            onClick={() => setMode("resize")}
-            disabled={selectedComponents.length === 0}
-          >
-            {strings.overlay.modes.resize}
-          </button>
-          <button
-            type="button"
-            className={`aiui-toolbar__button ${state.mode === "inspect" ? "is-active" : ""}`}
-            onClick={() => setMode("inspect")}
-          >
-            {strings.overlay.modes.inspect}
-          </button>
-        </div>
-
-        <section className="aiui-panel__section">
-          <p className="aiui-panel__label">{strings.overlay.modeHelpTitle}</p>
-          <div className="aiui-guidance-card">
-            <p className="aiui-panel__note">{strings.overlay.modeGuidance[state.mode]}</p>
-          </div>
-          <p className="aiui-panel__note">{strings.overlay.multiSelectHint}</p>
-        </section>
-
-        {showCaptureCard && matchedCapturedContext ? (
-          <section className="aiui-capture-card">
-            <div className="aiui-capture-card__header">
-              <div>
-                <p className="aiui-panel__label">{strings.overlay.captureTitle}</p>
-                <strong>{describeIntent(locale, matchedCapturedContext.intent)}</strong>
-              </div>
-              <button className="aiui-inline-button" type="button" onClick={() => setShowCaptureCard(false)}>
-                {strings.overlay.dismiss}
-              </button>
-            </div>
-          </section>
-        ) : null}
-
-        <section className="aiui-panel__section">
-          <p className="aiui-panel__label">{strings.overlay.selectedSummaryTitle}</p>
-          {selectedComponents.length > 0 ? (
-            <div className="aiui-target-card">
-              <strong>{selectedHeadline}</strong>
-              <p>
-                {strings.overlay.selectedCountLabel}: {selectedComponents.length}
-              </p>
-              {primaryTextPreview ? (
-                <p>
-                  {strings.overlay.selectedTextLabel}: {primaryTextPreview}
-                </p>
-              ) : null}
-            </div>
-          ) : (
-            <p className="aiui-empty">{strings.overlay.emptySelection}</p>
-          )}
-        </section>
-
-        {state.mode === "inspect" ? (
-          <section className="aiui-panel__section">
-            <div className="aiui-panel__section-header">
-              <p className="aiui-panel__label">{strings.overlay.promptComposerTitle}</p>
-              <span className="aiui-panel__hint">
-                {trimmedInstruction ? strings.overlay.promptReadyHint : strings.overlay.promptHint}
-              </span>
-            </div>
-            <textarea
-              className="aiui-prompt-input"
-              value={instructionDraft}
-              onChange={(event) => setInstructionDraft(event.target.value)}
-              placeholder={
-                selectedComponents.length > 0 ? strings.overlay.promptPlaceholder : strings.overlay.promptDisabledPlaceholder
-              }
-              disabled={selectedComponents.length === 0}
-              rows={5}
-            />
-            <div className="aiui-prompt-footer">
-              <p className="aiui-panel__note">{strings.overlay.promptSelectionHint}</p>
-              <button
-                className="aiui-text-button"
-                type="button"
-                onClick={handleClearPrompt}
-                disabled={instructionDraft.length === 0}
-              >
-                {strings.overlay.clearPrompt}
-              </button>
-            </div>
-          </section>
-        ) : null}
-
-        <section className="aiui-panel__section">
-          <p className="aiui-panel__label">{strings.overlay.whatChangedTitle}</p>
-          <pre className="aiui-summary-output">{whatChangedText || lastActionText}</pre>
-        </section>
-
-        <section className="aiui-panel__section">
-          <p className="aiui-panel__label">{strings.overlay.quickActionsTitle}</p>
-          <div className="aiui-primary-actions">
+          <div className="aiui-toolbar" role="tablist" aria-label={strings.overlay.modeLabel}>
             <button
-              className="aiui-primary-action"
               type="button"
-              disabled={!canCopyForAi}
-              onClick={() =>
-                currentPromptContext
-                  ? handleCopy(() => buildAiPrompt(locale, currentPromptContext), strings.overlay.copyForAiSuccess)
-                  : undefined
-              }
+              className={`aiui-toolbar__button ${state.mode === "adjust" ? "is-active" : ""}`}
+              onClick={() => setMode("adjust")}
             >
-              {strings.overlay.copyForAi}
+              {strings.overlay.modes.adjust}
             </button>
-            <button className="aiui-secondary-action" type="button" disabled={!canUndoPreview} onClick={handleUndoPreview}>
-              {strings.overlay.undoPreview}
+            <button
+              type="button"
+              className={`aiui-toolbar__button ${state.mode === "resize" ? "is-active" : ""}`}
+              onClick={() => setMode("resize")}
+              disabled={selectedComponents.length === 0}
+            >
+              {strings.overlay.modes.resize}
+            </button>
+            <button
+              type="button"
+              className={`aiui-toolbar__button ${state.mode === "inspect" ? "is-active" : ""}`}
+              onClick={() => setMode("inspect")}
+            >
+              {strings.overlay.modes.inspect}
             </button>
           </div>
-          <p className="aiui-panel__note">{quickActionHint}</p>
-          <p className="aiui-panel__note">{strings.overlay.resetPreviewHint}</p>
-        </section>
 
-        <section className="aiui-panel__section">
-          <details className="aiui-disclosure">
-            <summary className="aiui-disclosure__summary">
-              <span className="aiui-panel__label">{strings.overlay.advancedTitle}</span>
-              <span className="aiui-panel__hint">{strings.overlay.advancedHint}</span>
-            </summary>
-
-            <div className="aiui-disclosure__content">
-              <section className="aiui-panel__section">
-                <p className="aiui-panel__label">{strings.overlay.selectedTitle}</p>
-                <p className="aiui-panel__note">{strings.overlay.hierarchyHint}</p>
-                {selectedComponents.length > 0 ? (
-                  <dl className="aiui-details">
-                    {selectedComponents.map((component) => (
-                      <div key={component.id}>
-                        <dt>{formatElementSignature(component.tag, component.classList)}</dt>
-                        <dd>
-                          {strings.overlay.fields.selector}: {component.selector}
-                        </dd>
-                        <dd>
-                          {strings.overlay.fields.domPath}: {component.domPath}
-                        </dd>
-                        {component.semanticPath ? (
-                          <dd>
-                            {strings.overlay.fields.semanticPath}: {component.semanticPath}
-                          </dd>
-                        ) : null}
-                        {component.ancestorTrail.length > 0 ? (
-                          <dd>
-                            {strings.overlay.fields.ancestorTrail}: {component.ancestorTrail.join(" > ")}
-                          </dd>
-                        ) : null}
-                        {component.closestHeading ? (
-                          <dd>
-                            {strings.overlay.fields.closestHeading}: {component.closestHeading}
-                          </dd>
-                        ) : null}
-                        {component.landmarkHint ? (
-                          <dd>
-                            {strings.overlay.fields.landmarkHint}: {component.landmarkHint}
-                          </dd>
-                        ) : null}
-                        <dd>
-                          {strings.overlay.fields.siblingPosition}: {component.siblingIndex}/{component.siblingCount}
-                        </dd>
-                        <dd>
-                          {strings.overlay.fields.childCount}: {component.childCount}
-                        </dd>
-                        {component.testAttributes.length > 0 ? (
-                          <dd>
-                            {strings.overlay.fields.testAttributes}: {component.testAttributes.join(", ")}
-                          </dd>
-                        ) : null}
-                      </div>
-                    ))}
-                  </dl>
-                ) : (
-                  <p className="aiui-empty">{strings.overlay.emptySelection}</p>
-                )}
-              </section>
-
-              <section className="aiui-panel__section">
-                <div className="aiui-panel__section-header">
-                  <p className="aiui-panel__label">{strings.overlay.latestIntentTitle}</p>
-                  <span className="aiui-panel__hint">{strings.overlay.controlsHint}</span>
-                </div>
-                <pre className="aiui-intent-output" aria-live="polite">
-                  {lastIntentText}
-                </pre>
-              </section>
-
-              <section className="aiui-panel__section">
-                <p className="aiui-panel__label">{strings.overlay.useWithAiTitle}</p>
-                <div className="aiui-actions-grid">
-                  <button
-                    className="aiui-secondary-action"
-                    type="button"
-                    disabled={!canCopyJson}
-                    onClick={() =>
-                      currentPromptContext?.intent
-                        ? handleCopy(() => JSON.stringify(currentPromptContext.intent, null, 2), strings.overlay.copyJsonSuccess)
-                        : undefined
-                    }
-                  >
-                    {strings.overlay.copyJson}
-                  </button>
-                  <button
-                    className="aiui-secondary-action"
-                    type="button"
-                    disabled={!canCopyFullContext}
-                    onClick={() =>
-                      currentPromptContext
-                        ? handleCopy(() => buildFullContext(locale, currentPromptContext), strings.overlay.copyFullContextSuccess)
-                        : undefined
-                    }
-                  >
-                    {strings.overlay.copyFullContext}
-                  </button>
-                </div>
-              </section>
+          <section className="aiui-panel__section">
+            <p className="aiui-panel__label">{strings.overlay.modeHelpTitle}</p>
+            <div className="aiui-guidance-card">
+              <p className="aiui-panel__note">{strings.overlay.modeGuidance[state.mode]}</p>
             </div>
-          </details>
-        </section>
+            <p className="aiui-panel__note">{strings.overlay.multiSelectHint}</p>
+          </section>
 
-        <button className="aiui-exit-button" type="button" onClick={onExit}>
-          {strings.overlay.exit}
-        </button>
+          {showCaptureCard && matchedCapturedContext ? (
+            <section className="aiui-capture-card">
+              <div className="aiui-capture-card__header">
+                <div>
+                  <p className="aiui-panel__label">{strings.overlay.captureTitle}</p>
+                  <strong>{describeIntent(locale, matchedCapturedContext.intent)}</strong>
+                </div>
+                <button className="aiui-inline-button" type="button" onClick={() => setShowCaptureCard(false)}>
+                  {strings.overlay.dismiss}
+                </button>
+              </div>
+            </section>
+          ) : null}
+
+          <section className="aiui-panel__section">
+            <p className="aiui-panel__label">{strings.overlay.selectedSummaryTitle}</p>
+            {selectedComponents.length > 0 ? (
+              <div className="aiui-target-card">
+                <strong>{selectedHeadline}</strong>
+                <p>
+                  {strings.overlay.selectedCountLabel}: {selectedComponents.length}
+                </p>
+                {primaryTextPreview ? (
+                  <p>
+                    {strings.overlay.selectedTextLabel}: {primaryTextPreview}
+                  </p>
+                ) : null}
+              </div>
+            ) : (
+              <p className="aiui-empty">{strings.overlay.emptySelection}</p>
+            )}
+          </section>
+
+          {state.mode === "inspect" ? (
+            <section className="aiui-panel__section">
+              <div className="aiui-panel__section-header">
+                <p className="aiui-panel__label">{strings.overlay.promptComposerTitle}</p>
+                <span className="aiui-panel__hint">
+                  {trimmedInstruction ? strings.overlay.promptReadyHint : strings.overlay.promptHint}
+                </span>
+              </div>
+              <textarea
+                className="aiui-prompt-input"
+                value={instructionDraft}
+                onChange={(event) => setInstructionDraft(event.target.value)}
+                placeholder={
+                  selectedComponents.length > 0 ? strings.overlay.promptPlaceholder : strings.overlay.promptDisabledPlaceholder
+                }
+                disabled={selectedComponents.length === 0}
+                rows={5}
+              />
+              <div className="aiui-prompt-footer">
+                <p className="aiui-panel__note">{strings.overlay.promptSelectionHint}</p>
+                <button
+                  className="aiui-text-button"
+                  type="button"
+                  onClick={handleClearPrompt}
+                  disabled={instructionDraft.length === 0}
+                >
+                  {strings.overlay.clearPrompt}
+                </button>
+              </div>
+            </section>
+          ) : null}
+
+          <section className="aiui-panel__section">
+            <p className="aiui-panel__label">{strings.overlay.whatChangedTitle}</p>
+            <pre className="aiui-summary-output">{whatChangedText || lastActionText}</pre>
+          </section>
+
+          <section className="aiui-panel__section">
+            <p className="aiui-panel__label">{strings.overlay.quickActionsTitle}</p>
+            <div className="aiui-primary-actions">
+              <button
+                className="aiui-primary-action"
+                type="button"
+                disabled={!canCopyForAi}
+                onClick={() =>
+                  currentPromptContext
+                    ? handleCopy(() => buildAiPrompt(locale, currentPromptContext), strings.overlay.copyForAiSuccess)
+                    : undefined
+                }
+              >
+                {strings.overlay.copyForAi}
+              </button>
+              <button className="aiui-secondary-action" type="button" disabled={!canUndoPreview} onClick={handleUndoPreview}>
+                {strings.overlay.undoPreview}
+              </button>
+            </div>
+            <p className="aiui-panel__note">{quickActionHint}</p>
+            <p className="aiui-panel__note">{strings.overlay.resetPreviewHint}</p>
+          </section>
+
+          <section className="aiui-panel__section">
+            <details className="aiui-disclosure">
+              <summary className="aiui-disclosure__summary">
+                <span className="aiui-panel__label">{strings.overlay.advancedTitle}</span>
+                <span className="aiui-panel__hint">{strings.overlay.advancedHint}</span>
+              </summary>
+
+              <div className="aiui-disclosure__content">
+                <section className="aiui-panel__section">
+                  <p className="aiui-panel__label">{strings.overlay.selectedTitle}</p>
+                  <p className="aiui-panel__note">{strings.overlay.hierarchyHint}</p>
+                  {selectedComponents.length > 0 ? (
+                    <dl className="aiui-details">
+                      {selectedComponents.map((component) => (
+                        <div key={component.id}>
+                          <dt>{formatElementSignature(component.tag, component.classList)}</dt>
+                          <dd>
+                            {strings.overlay.fields.selector}: {component.selector}
+                          </dd>
+                          <dd>
+                            {strings.overlay.fields.domPath}: {component.domPath}
+                          </dd>
+                          {component.semanticPath ? (
+                            <dd>
+                              {strings.overlay.fields.semanticPath}: {component.semanticPath}
+                            </dd>
+                          ) : null}
+                          {component.ancestorTrail.length > 0 ? (
+                            <dd>
+                              {strings.overlay.fields.ancestorTrail}: {component.ancestorTrail.join(" > ")}
+                            </dd>
+                          ) : null}
+                          {component.closestHeading ? (
+                            <dd>
+                              {strings.overlay.fields.closestHeading}: {component.closestHeading}
+                            </dd>
+                          ) : null}
+                          {component.landmarkHint ? (
+                            <dd>
+                              {strings.overlay.fields.landmarkHint}: {component.landmarkHint}
+                            </dd>
+                          ) : null}
+                          <dd>
+                            {strings.overlay.fields.siblingPosition}: {component.siblingIndex}/{component.siblingCount}
+                          </dd>
+                          <dd>
+                            {strings.overlay.fields.childCount}: {component.childCount}
+                          </dd>
+                          {component.testAttributes.length > 0 ? (
+                            <dd>
+                              {strings.overlay.fields.testAttributes}: {component.testAttributes.join(", ")}
+                            </dd>
+                          ) : null}
+                        </div>
+                      ))}
+                    </dl>
+                  ) : (
+                    <p className="aiui-empty">{strings.overlay.emptySelection}</p>
+                  )}
+                </section>
+
+                <section className="aiui-panel__section">
+                  <div className="aiui-panel__section-header">
+                    <p className="aiui-panel__label">{strings.overlay.latestIntentTitle}</p>
+                    <span className="aiui-panel__hint">{strings.overlay.controlsHint}</span>
+                  </div>
+                  <pre className="aiui-intent-output" aria-live="polite">
+                    {lastIntentText}
+                  </pre>
+                </section>
+
+                <section className="aiui-panel__section">
+                  <p className="aiui-panel__label">{strings.overlay.useWithAiTitle}</p>
+                  <div className="aiui-actions-grid">
+                    <button
+                      className="aiui-secondary-action"
+                      type="button"
+                      disabled={!canCopyJson}
+                      onClick={() =>
+                        currentPromptContext?.intent
+                          ? handleCopy(() => JSON.stringify(currentPromptContext.intent, null, 2), strings.overlay.copyJsonSuccess)
+                          : undefined
+                      }
+                    >
+                      {strings.overlay.copyJson}
+                    </button>
+                    <button
+                      className="aiui-secondary-action"
+                      type="button"
+                      disabled={!canCopyFullContext}
+                      onClick={() =>
+                        currentPromptContext
+                          ? handleCopy(() => buildFullContext(locale, currentPromptContext), strings.overlay.copyFullContextSuccess)
+                          : undefined
+                      }
+                    >
+                      {strings.overlay.copyFullContext}
+                    </button>
+                  </div>
+                </section>
+              </div>
+            </details>
+          </section>
+
+          <button className="aiui-exit-button" type="button" onClick={onExit}>
+            {strings.overlay.exit}
+          </button>
+        </div>
       </aside>
 
       {feedback ? (
