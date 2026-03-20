@@ -550,8 +550,16 @@ export function OverlayApp({ locale, onExit, overlayHost }: OverlayAppProps): JS
       return;
     }
 
-    const deltaX = event.clientX - resizeState.startX;
-    const deltaY = event.clientY - resizeState.startY;
+    const margin = getPanelMargin();
+    const minLeft = margin;
+    const minTop = margin;
+    const maxRight = window.innerWidth - margin;
+    const maxBottom = window.innerHeight - margin;
+
+    const clampedClientX = Math.max(0, Math.min(event.clientX, window.innerWidth));
+    const clampedClientY = Math.max(0, Math.min(event.clientY, window.innerHeight));
+    const deltaX = clampedClientX - resizeState.startX;
+    const deltaY = clampedClientY - resizeState.startY;
 
     let newWidth = resizeState.startWidth;
     let newHeight = resizeState.startHeight;
@@ -573,16 +581,13 @@ export function OverlayApp({ locale, onExit, overlayHost }: OverlayAppProps): JS
       newTop = resizeState.startTop + deltaY;
     }
 
-    const margin = getPanelMargin();
-    const minLeft = margin;
-    const minTop = margin;
-    const maxRight = window.innerWidth - margin;
-    const maxBottom = window.innerHeight - margin;
-
-    const clampedWidth = Math.max(MIN_PANEL_WIDTH, Math.min(newWidth, maxRight - newLeft));
-    const clampedHeight = Math.max(MIN_PANEL_HEIGHT, Math.min(newHeight, maxBottom - newTop));
     const clampedLeft = Math.max(minLeft, Math.min(newLeft, maxRight - MIN_PANEL_WIDTH));
     const clampedTop = Math.max(minTop, Math.min(newTop, maxBottom - MIN_PANEL_HEIGHT));
+    const availableWidth = maxRight - clampedLeft;
+    const availableHeight = maxBottom - clampedTop;
+    
+    const clampedWidth = Math.max(MIN_PANEL_WIDTH, Math.min(newWidth, availableWidth));
+    const clampedHeight = Math.max(MIN_PANEL_HEIGHT, Math.min(newHeight, availableHeight));
 
     dispatch({ type: "set-panel-size", size: { width: clampedWidth, height: clampedHeight } });
     setPanelPosition({ x: clampedLeft, y: clampedTop });
